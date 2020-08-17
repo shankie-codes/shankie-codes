@@ -1,0 +1,12 @@
+@import "../../scss/2-shared-components/singlePage";
+.post {
+    background-color: white;
+    border-radius: 1rem;
+    @include padder;
+}
+
+.grid {
+    display: grid;
+    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(20em, 1fr));
+}

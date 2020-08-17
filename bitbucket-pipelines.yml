@@ -1,0 +1,96 @@
+pipelines:
+  tags:
+    test/*:
+      - step:
+          image: node:14
+          name: Build
+          script: # Modify the commands below to build your repository.
+            - npm install
+            - echo "$FIREBASE_CONFIG" > firebase-config.js
+            - npm run predeploy
+          artifacts: # defining the artifacts to be passed to each future step.
+            - nextjs/**
+      - step:
+          name: Upload assets to repo 'downloads' directory
+          script:
+            - tar -czvf nextjs.tar.gz nextjs
+            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"nextjs.tar.gz"
+      - step:
+          name: Trigger the poli-hosting deploy
+          script:
+            - >
+              curl -X POST -is --user "${BB_AUTH_STRING}"
+              -H 'Content-Type: application/json'
+              https://api.bitbucket.org/2.0/repositories/proper-design/poli-hosting/pipelines/
+              -d '
+              {
+                "target": {
+                  "type": "pipeline_ref_target",
+                  "ref_type": "branch",
+                  "ref_name": "master",
+                  "selector": {
+                    "type": "custom",
+                    "pattern": "deploy-testing"
+                  }
+                }
+              }'
+      - step:
+          name: Deploy functions to Firebase
+          deployment: staging
+          image: node:11
+          caches:
+            - node
+          script:
+            - echo "$FIREBASE_CONFIG" > firebase-config.js
+            - pipe: atlassian/firebase-deploy:0.3.4
+              variables:
+                FIREBASE_TOKEN: $FIREBASE_TOKEN
+                PROJECT_ID: $FIREBASE_PROJECT
+                EXTRA_ARGS: "--only functions:nextjs"
+    prod/*:
+      - step:
+          image: node:14
+          name: Build
+          script: # Modify the commands below to build your repository.
+            - npm install
+            - echo "$FIREBASE_CONFIG_PROD" > firebase-config.js
+            - npm run predeploy
+          artifacts: # defining the artifacts to be passed to each future step.
+            - nextjs/**
+      - step:
+          name: Upload assets to repo 'downloads' directory
+          script:
+            - tar -czvf nextjs-prod.tar.gz nextjs
+            - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"nextjs-prod.tar.gz"
+      - step:
+          name: Trigger the poli-hosting deploy
+          script:
+            - >
+              curl -X POST -is --user "${BB_AUTH_STRING}"
+              -H 'Content-Type: application/json'
+              https://api.bitbucket.org/2.0/repositories/proper-design/poli-hosting/pipelines/
+              -d '
+              {
+                "target": {
+                  "type": "pipeline_ref_target",
+                  "ref_type": "branch",
+                  "ref_name": "master",
+                  "selector": {
+                    "type": "custom",
+                    "pattern": "deploy-prod"
+                  }
+                }
+              }'
+      - step:
+          name: Deploy functions to Firebase
+          deployment: staging
+          image: node:11
+          caches:
+            - node
+          script:
+            - echo "$FIREBASE_CONFIG_PROD" > firebase-config.js
+            - pipe: atlassian/firebase-deploy:0.3.4
+              variables:
+                FIREBASE_TOKEN: $FIREBASE_TOKEN
+                PROJECT_ID: $FIREBASE_PROJECT_PROD
+                EXTRA_ARGS: "--only functions:nextjs"
