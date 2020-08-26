@@ -1,6 +1,7 @@
 import React from "react";
 import Head from "next/head";
 import styles from "./Layout.module.scss";
+import Footer from "./Footer";
 
 const Layout = ({ children }) => {
   return (
@@ -39,6 +40,7 @@ const Layout = ({ children }) => {
           <div></div>
         </div>
         <div className={styles.inner}>{children}</div>
+        <Footer />
       </div>
     </div>
   );
