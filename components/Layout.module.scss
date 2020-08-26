@@ -15,6 +15,8 @@
   width: 50rem;
   height: 30rem;
   margin: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -51,4 +53,8 @@
 
 .inner {
   padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
