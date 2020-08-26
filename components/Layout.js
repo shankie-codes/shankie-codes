@@ -32,7 +32,14 @@ const Layout = ({ children }) => {
         <meta name="msapplication-TileColor" content="#da532c" />
         <meta name="theme-color" content="#ffffff" />
       </Head>
-      <div className={styles.body}>{children}</div>
+      <div className={styles.body}>
+        <div className={styles.header}>
+          <div className={styles.closer}></div>
+          <h1>shankie.codes</h1>
+          <div></div>
+        </div>
+        <div className={styles.inner}>{children}</div>
+      </div>
     </div>
   );
 };

@@ -26,6 +26,12 @@ function Home(props) {
       <Head>
         <title>shankie.codes</title>
       </Head>
+      <div className={styles.imageWrapper}>
+        <img
+          src="/images/shankie-atkinson-384.png"
+          alt="A scruffy guy in a t-shirt"
+        />
+      </div>
       hi
     </Layout>
   );
