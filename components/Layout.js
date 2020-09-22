@@ -35,7 +35,10 @@ const Layout = ({ children }) => {
       </Head>
       <div className={styles.body}>
         <div className={styles.header}>
-          <div className={styles.closer}></div>
+          <div
+            className={styles.closer}
+            onClick={() => alert("No way, Jose")}
+          ></div>
           <h1>shankie.codes</h1>
           <div></div>
         </div>

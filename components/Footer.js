@@ -1,15 +1,39 @@
-import React from "react";
+import React, { Fragment, useState } from "react";
+import MenuButton from "./MenuButton";
 
 import styles from "./Footer.module.scss";
 
 const Footer = () => {
+  const [darkModeActive, setDarkModeActive] = useState(false);
   return (
-    <ul className={styles.wrapper}>
-      <li className={styles.item}>Something</li>
-      <li className={styles.item}>Else</li>
-      <li className={styles.item}>Else</li>
-      <li className={styles.item}>Else</li>
-    </ul>
+    <Fragment>
+      <ul className={styles.wrapper}>
+        <li>
+          <MenuButton>Something</MenuButton>
+        </li>
+        <li>
+          <MenuButton>Else</MenuButton>
+        </li>
+        <li>
+          <MenuButton>Else</MenuButton>
+        </li>
+        <li>
+          <MenuButton>Else</MenuButton>
+        </li>
+        <li>
+          <MenuButton onClick={() => setDarkModeActive(true)}>
+            Dark mode
+          </MenuButton>
+        </li>
+      </ul>
+      {darkModeActive && (
+        <div className={styles.darkMode}>
+          <MenuButton onClick={() => setDarkModeActive(false)}>
+            Ok, very funny
+          </MenuButton>
+        </div>
+      )}
+    </Fragment>
   );
 };
 
