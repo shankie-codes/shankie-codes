@@ -7,7 +7,6 @@ import styles from "./[id].module.scss";
 import sanitize from "../helpers/sanitize";
 import get from "lodash.get";
 import LoadingSpinner from "../components/LoadingSpinner";
-import VideoPlayer from "../components/VideoPlayer";
 
 // We do a direct request to the API here (rather than using the Firebase SDK) because it's a one-off at build time. We don't need to be able do interact with the document.
 const FirestorePagesURL = `https://firestore.googleapis.com/v1/projects/${process.env.FIREBASE_PROJECT_ID}/databases/(default)/documents/pages`;
@@ -88,7 +87,6 @@ function Page({ page, found }) {
         </header>
 
         <div className={styles.content}>
-          {page.video && <VideoPlayer url={page.video} />}
           <div dangerouslySetInnerHTML={{ __html: page.content }} />
         </div>
       </main>

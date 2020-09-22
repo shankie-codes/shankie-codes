@@ -1,30 +1,49 @@
 import React from "react";
 import useSWR from "swr";
+import get from "lodash.get";
+import sanitize from "../helpers/sanitize";
 import Head from "next/head";
 import Layout from "../components/Layout";
-import { generatePosts } from "../helpers/utils";
 
 import styles from "./index.module.scss";
 
 const FirestorePagesURL = `https://firestore.googleapis.com/v1/projects/${process.env.FIREBASE_PROJECT_ID}/databases/(default)/documents/pages`;
-const fetcher = (url) => fetch(url).then((r) => r.json());
 
-export async function getServerSideProps(context) {
-  const data = await fetcher(FirestorePagesURL);
-  const pages = generatePosts(data) || [];
-  return { props: { pages } };
+// This function gets called at on server-side.
+// It won't be called on client-side, so you can even do
+// direct database queries. See the "Technical details" section.
+export async function getServerSideProps({ params }) {
+  try {
+    // Call an external API endpoint to get posts.
+    const res = await fetch(`${FirestorePagesURL}/index`); // grabs the whole document with the provided document id
+    const page = await res.json();
+
+    // By returning { props: posts }, the Blog component
+    // will receive `posts` as a prop at build time
+    return {
+      props: {
+        page: {
+          title: get(page, "fields.title.stringValue") || "",
+          subtitle: get(page, "fields.subtitle.stringValue") || "",
+          video: get(page, "fields.video.stringValue") || "",
+          content: sanitize(
+            get(page, "fields.content.stringValue") || "<p></p>"
+          ), // html content should be sanitized before using React's dangerouslySetInnerHTML
+        },
+        found: !(page.error && page.error.code === 404),
+      },
+    };
+  } catch (error) {
+    console.error(error);
+    return { props: {} };
+  }
 }
 
-function Home(props) {
-  const initialData = props.pages;
-  const { data } = useSWR(FirestorePagesURL, fetcher, { initialData });
-  // initialData is already transformed, so only transform refetches
-  const pages = data.documents ? generatePosts(data) : data;
-
+function Home({ page }) {
   return (
     <Layout>
       <Head>
-        <title>shankie.codes</title>
+        <title>{page.title}</title>
       </Head>
       <div className={styles.wrapper}>
         <div className={styles.imageWrapper}>
@@ -34,7 +53,7 @@ function Home(props) {
           />
         </div>
         <div className={styles.content}>
-          <p>Hi, I'm Shankie</p>
+          <div dangerouslySetInnerHTML={{ __html: page.content }}></div>
         </div>
       </div>
     </Layout>
